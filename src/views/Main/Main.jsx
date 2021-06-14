@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import Letter from '../../components/Letter';
+import ControlButtons from '../../components/ControlButtons';
+import Countdown from '../../components/Countdown';
 import TypingGame from '../../classes/TypingGame';
+import English from '../../classes/English';
 
 const Body = styled.div`
   width: 100vw;
@@ -11,25 +15,15 @@ const Body = styled.div`
 
 const Main = (props) => {
   const { typingGame } = props;
-  const [secondsRemaining, setSecondsRemaining] = useState(10);
-  const [timerIntervalId, setTimerIntervalId] = useState(null);
   const [started, setStarted] = useState(false);
-  const [currentLetter, setCurrentLetter] = useState(null);
-
-  const getRandomEnglishLetter = () => {
-    const ENGLISH_LETTER_COUNT = 26;
-    const newEnglishLetterAsciiCode = Math.floor(Math.random() * ENGLISH_LETTER_COUNT) + 1 + 64;
-    return String.fromCharCode(newEnglishLetterAsciiCode);
-  };
+  const [currentLetter, setCurrentLetter] = useState('');
 
   const startTypingGame = () => {
     typingGame.start();
     setStarted(typingGame.getTypingGameStarted());
 
-    typingGame.setNewCurrentLetter(getRandomEnglishLetter());
+    typingGame.setNewCurrentLetter(English.getRandomLetter());
     setCurrentLetter(typingGame.getCurrentLetter());
-
-    setSecondsRemaining(10);
   };
 
   const stopTypingGame = () => {
@@ -39,29 +33,11 @@ const Main = (props) => {
   };
 
   useEffect(() => {
-    if (secondsRemaining <= 0) {
-      stopTypingGame();
-    }
-  }, [secondsRemaining]);
-
-  useEffect(() => {
-    if (started) {
-      const ONE_SECOND = 1000;
-      const newTimerIntervalId = setInterval(() => {
-        setSecondsRemaining((currentSecondsRemaining) => currentSecondsRemaining - 1);
-      }, ONE_SECOND);
-      setTimerIntervalId(newTimerIntervalId);
-    } else {
-      clearInterval(timerIntervalId);
-    }
-  }, [started]);
-
-  useEffect(() => {
     const handleTypingEvent = (e) => {
       const keyDownLetter = e.key.toUpperCase();
       const correct = typingGame.checkIsLetterCorrect(keyDownLetter);
       if (correct) {
-        typingGame.setNewCurrentLetter(getRandomEnglishLetter());
+        typingGame.setNewCurrentLetter(English.getRandomLetter());
         setCurrentLetter(typingGame.getCurrentLetter());
       }
     };
@@ -75,25 +51,17 @@ const Main = (props) => {
 
   return (
     <Body>
-      <div>
-        { currentLetter }
-      </div>
-      <div>
-        {
-          started ? (
-            <button type="button" onClick={stopTypingGame}>
-              Stop
-            </button>
-          ) : (
-            <button type="button" onClick={startTypingGame}>
-              Start
-            </button>
-          )
-        }
-      </div>
-      <div>
-        { secondsRemaining }
-      </div>
+      <Letter letter={currentLetter} />
+      <ControlButtons
+        started={started}
+        startTypingGame={startTypingGame}
+        stopTypingGame={stopTypingGame}
+      />
+      <Countdown
+        startCountdown={started}
+        startCountdownSeconds={10}
+        timeUpEvent={stopTypingGame}
+      />
     </Body>
   );
 };

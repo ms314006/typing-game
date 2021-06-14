@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import LandingPage from './views/LandingPage';
+import Main from './views/Main';
 
 ReactDom.render(
-  <LandingPage />,
+  <Main />,
   document.getElementById('root'),
 );
