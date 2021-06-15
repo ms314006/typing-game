@@ -10,7 +10,7 @@ class TypingGame {
 
   stop() {
     this.started = false;
-    this.currentLetter = null;
+    this.currentLetter = '';
   }
 
   getTypingGameStarted() {

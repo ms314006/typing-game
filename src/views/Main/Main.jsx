@@ -11,34 +11,79 @@ const Body = styled.div`
   width: 100vw;
   height: 100vh;
   font-family: 'Nanum Gothic', sans-serif;
+  background: #1E212D;
+`;
+
+const GameWindowWrap = styled.div`
+  padding: 20px;
+  box-sizing: border-box;
+  margin: 0px auto;
+  width: 700px;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 100px 60% auto;
+`;
+
+const Letters = styled.div`
+  position: relative;
+
+  & > div {
+    position: absolute;
+    top: calc(50% - 180px);
+  }
 `;
 
 const Main = (props) => {
   const { typingGame } = props;
   const [started, setStarted] = useState(false);
-  const [currentLetter, setCurrentLetter] = useState('');
+  const [letters, setLetters] = useState([
+    { letter: '', letterIsHide: false },
+    { letter: '', letterIsHide: true },
+  ]);
 
   const startTypingGame = () => {
     typingGame.start();
     setStarted(typingGame.getTypingGameStarted());
 
     typingGame.setNewCurrentLetter(English.getRandomLetter());
-    setCurrentLetter(typingGame.getCurrentLetter());
+    setLetters([
+      { letter: typingGame.getCurrentLetter(), letterIsHide: false },
+      letters[1],
+    ]);
   };
 
   const stopTypingGame = () => {
     typingGame.stop();
     setStarted(typingGame.getTypingGameStarted());
-    setCurrentLetter(typingGame.getCurrentLetter());
+    setLetters([
+      { letter: typingGame.getCurrentLetter(), letterIsHide: false },
+      { letter: typingGame.getCurrentLetter(), letterIsHide: true },
+    ]);
   };
 
   useEffect(() => {
     const handleTypingEvent = (e) => {
       const keyDownLetter = e.key.toUpperCase();
       const correct = typingGame.checkIsLetterCorrect(keyDownLetter);
+
       if (correct) {
         typingGame.setNewCurrentLetter(English.getRandomLetter());
-        setCurrentLetter(typingGame.getCurrentLetter());
+        setLetters((currentLetters) => {
+          setLetters([
+            {
+              letter: !currentLetters[0].letterIsHide
+                ? currentLetters[0].letter
+                : typingGame.getCurrentLetter(),
+              letterIsHide: !currentLetters[0].letterIsHide,
+            },
+            {
+              letter: !currentLetters[1].letterIsHide
+                ? currentLetters[1].letter
+                : typingGame.getCurrentLetter(),
+              letterIsHide: !currentLetters[1].letterIsHide,
+            },
+          ]);
+        });
       }
     };
 
@@ -51,17 +96,22 @@ const Main = (props) => {
 
   return (
     <Body>
-      <Letter letter={currentLetter} />
-      <ControlButtons
-        started={started}
-        startTypingGame={startTypingGame}
-        stopTypingGame={stopTypingGame}
-      />
-      <Countdown
-        startCountdown={started}
-        startCountdownSeconds={10}
-        timeUpEvent={stopTypingGame}
-      />
+      <GameWindowWrap>
+        <Countdown
+          startCountdown={started}
+          startCountdownSeconds={10}
+          timeUpEvent={stopTypingGame}
+        />
+        <Letters>
+          <Letter letter={letters[0].letter} letterIsHide={letters[0].letterIsHide} />
+          <Letter letter={letters[1].letter} letterIsHide={letters[1].letterIsHide} />
+        </Letters>
+        <ControlButtons
+          started={started}
+          startTypingGame={startTypingGame}
+          stopTypingGame={stopTypingGame}
+        />
+      </GameWindowWrap>
     </Body>
   );
 };

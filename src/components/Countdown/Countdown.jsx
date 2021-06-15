@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const Body = styled.div`
+  color: #FAF3E0;
+  text-align: center;
+  font-size: 64px;
 
+  & > span {
+    font-size: 24px;
+  }
 `;
 
 const Countdown = (props) => {
@@ -21,10 +27,12 @@ const Countdown = (props) => {
     if (startCountdown) {
       setSecondsRemaining(startCountdownSeconds);
 
-      const ONE_SECOND = 1000;
+      const ONE_MIN_SECOND = 10;
       const newTimerIntervalId = setInterval(() => {
-        setSecondsRemaining((currentSecondsRemaining) => currentSecondsRemaining - 1);
-      }, ONE_SECOND);
+        setSecondsRemaining((currentSecondsRemaining) => (
+          (Math.round((currentSecondsRemaining - 0.01) * 100) / 100).toFixed(2)
+        ));
+      }, ONE_MIN_SECOND);
       setTimerIntervalId(newTimerIntervalId);
     } else {
       clearInterval(timerIntervalId);
@@ -35,6 +43,7 @@ const Countdown = (props) => {
   return (
     <Body>
       { secondsRemaining }
+      <span>sec</span>
     </Body>
   );
 };
