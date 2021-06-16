@@ -24,6 +24,7 @@ const Body = styled.div`
   font-style: italic;
   font-size: 32px;
   position: absolute;
+  opacity: ${(props) => (props.show ? 0 : 1)};
 
   & > div {
     display: inline-block;

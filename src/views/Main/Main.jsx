@@ -5,6 +5,7 @@ import Letter from '../../components/Letter';
 import ControlButtons from '../../components/ControlButtons';
 import Countdown from '../../components/Countdown';
 import ComboCounter from '../../components/ComboCounter';
+import Result from '../../components/Result';
 import TypingGame from '../../classes/TypingGame';
 import English from '../../classes/English';
 
@@ -38,6 +39,9 @@ const Letters = styled.div`
 const Main = (props) => {
   const { typingGame } = props;
   const [comboCount, setComboCount] = useState(0);
+  const [maxComboCount, setMaxComboCount] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
   const [started, setStarted] = useState(false);
   const [letters, setLetters] = useState([
     { letter: '', letterIsHide: false },
@@ -53,6 +57,10 @@ const Main = (props) => {
       { letter: typingGame.getCurrentLetter(), letterIsHide: false },
       letters[1],
     ]);
+    setShowResult(false);
+    setComboCount(0);
+    setMaxComboCount(0);
+    setScore(0);
   };
 
   const stopTypingGame = () => {
@@ -62,39 +70,69 @@ const Main = (props) => {
       { letter: typingGame.getCurrentLetter(), letterIsHide: false },
       { letter: typingGame.getCurrentLetter(), letterIsHide: true },
     ]);
+    setComboCount((currentComboCount) => {
+      setMaxComboCount(
+        (currentMaxComboCount) => Math.max(currentMaxComboCount, currentComboCount),
+      );
+      return currentComboCount;
+    });
+    setShowResult(true);
+  };
+  const checkTypingKeyIsCorrect = (e) => {
+    const keyDownLetter = e.key.toUpperCase();
+    const correct = typingGame.checkIsLetterCorrect(keyDownLetter);
+    if (correct) {
+      typingGame.setNewCurrentLetter(English.getRandomLetter());
+      setLetters((currentLetters) => ([
+        {
+          letter: !currentLetters[0].letterIsHide
+            ? currentLetters[0].letter
+            : typingGame.getCurrentLetter(),
+          letterIsHide: !currentLetters[0].letterIsHide,
+        },
+        {
+          letter: !currentLetters[1].letterIsHide
+            ? currentLetters[1].letter
+            : typingGame.getCurrentLetter(),
+          letterIsHide: !currentLetters[1].letterIsHide,
+        },
+      ]));
+      setComboCount((currentComboCount) => currentComboCount + 1);
+      setScore((currentScore) => currentScore + 1);
+    } else {
+      setComboCount((currentComboCount) => {
+        setMaxComboCount(
+          (currentMaxComboCount) => Math.max(currentMaxComboCount, currentComboCount),
+        );
+        return 0;
+      });
+    }
+  };
+
+  const handleTypingEvent = (e) => {
+    const SPACE = 'Space';
+    if (e.code === SPACE) {
+      startTypingGame();
+    } else {
+      checkTypingKeyIsCorrect(e);
+    }
   };
 
   useEffect(() => {
-    const checkTypingKeyIsCorrect = (e) => {
-      const keyDownLetter = e.key.toUpperCase();
-      const correct = typingGame.checkIsLetterCorrect(keyDownLetter);
-      if (correct) {
-        typingGame.setNewCurrentLetter(English.getRandomLetter());
-        setLetters((currentLetters) => ([
-          {
-            letter: !currentLetters[0].letterIsHide
-              ? currentLetters[0].letter
-              : typingGame.getCurrentLetter(),
-            letterIsHide: !currentLetters[0].letterIsHide,
-          },
-          {
-            letter: !currentLetters[1].letterIsHide
-              ? currentLetters[1].letter
-              : typingGame.getCurrentLetter(),
-            letterIsHide: !currentLetters[1].letterIsHide,
-          },
-        ]));
-        setComboCount((currentComboCount) => currentComboCount + 1);
-      } else {
-        setComboCount(0);
-      }
-    };
-    window.addEventListener('keydown', checkTypingKeyIsCorrect);
+    window.addEventListener('keydown', handleTypingEvent);
   }, []);
 
   return (
     <Body>
       <ComboCounter comboCount={comboCount} />
+      {
+        showResult ? (
+          <Result
+            score={score}
+            maxComboCount={maxComboCount}
+          />
+        ) : null
+      }
       <GameWindowWrap>
         <Countdown
           startCountdown={started}

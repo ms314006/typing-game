@@ -6,7 +6,7 @@ const Body = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  color: #EABF9F;
 `;
 
 const Button = styled.button`
@@ -17,6 +17,7 @@ const Button = styled.button`
   border-radius: 12px;
   width: 300px;
   height: 80px;
+  margin-bottom: 8px;
 
   &:hover {
     color: #1E212D;
@@ -35,9 +36,12 @@ const ControlButtons = (props) => {
             Stop
           </Button>
         ) : (
-          <Button onClick={startTypingGame}>
-            Start
-          </Button>
+          <div>
+            <Button onClick={startTypingGame}>
+              Start
+            </Button>
+            <div>* 點擊空白鍵也可以直接開始哦 😉</div>
+          </div>
         )
       }
     </Body>
