@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Letter from '../../components/Letter';
 import ControlButtons from '../../components/ControlButtons';
 import Countdown from '../../components/Countdown';
+import ComboCounter from '../../components/ComboCounter';
 import TypingGame from '../../classes/TypingGame';
 import English from '../../classes/English';
 
@@ -12,6 +13,7 @@ const Body = styled.div`
   height: 100vh;
   font-family: 'Nanum Gothic', sans-serif;
   background: #1E212D;
+  position: relative;
 `;
 
 const GameWindowWrap = styled.div`
@@ -35,6 +37,7 @@ const Letters = styled.div`
 
 const Main = (props) => {
   const { typingGame } = props;
+  const [comboCount, setComboCount] = useState(0);
   const [started, setStarted] = useState(false);
   const [letters, setLetters] = useState([
     { letter: '', letterIsHide: false },
@@ -62,40 +65,36 @@ const Main = (props) => {
   };
 
   useEffect(() => {
-    const handleTypingEvent = (e) => {
+    const checkTypingKeyIsCorrect = (e) => {
       const keyDownLetter = e.key.toUpperCase();
       const correct = typingGame.checkIsLetterCorrect(keyDownLetter);
-
       if (correct) {
         typingGame.setNewCurrentLetter(English.getRandomLetter());
-        setLetters((currentLetters) => {
-          setLetters([
-            {
-              letter: !currentLetters[0].letterIsHide
-                ? currentLetters[0].letter
-                : typingGame.getCurrentLetter(),
-              letterIsHide: !currentLetters[0].letterIsHide,
-            },
-            {
-              letter: !currentLetters[1].letterIsHide
-                ? currentLetters[1].letter
-                : typingGame.getCurrentLetter(),
-              letterIsHide: !currentLetters[1].letterIsHide,
-            },
-          ]);
-        });
+        setLetters((currentLetters) => ([
+          {
+            letter: !currentLetters[0].letterIsHide
+              ? currentLetters[0].letter
+              : typingGame.getCurrentLetter(),
+            letterIsHide: !currentLetters[0].letterIsHide,
+          },
+          {
+            letter: !currentLetters[1].letterIsHide
+              ? currentLetters[1].letter
+              : typingGame.getCurrentLetter(),
+            letterIsHide: !currentLetters[1].letterIsHide,
+          },
+        ]));
+        setComboCount((currentComboCount) => currentComboCount + 1);
+      } else {
+        setComboCount(0);
       }
     };
-
-    if (started) {
-      window.addEventListener('keydown', handleTypingEvent);
-    } else {
-      window.removeEventListener('keydown', handleTypingEvent);
-    }
-  }, [started]);
+    window.addEventListener('keydown', checkTypingKeyIsCorrect);
+  }, []);
 
   return (
     <Body>
+      <ComboCounter comboCount={comboCount} />
       <GameWindowWrap>
         <Countdown
           startCountdown={started}
