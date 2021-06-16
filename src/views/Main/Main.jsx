@@ -8,6 +8,7 @@ import ComboCounter from '../../components/ComboCounter';
 import Result from '../../components/Result';
 import TypingGame from '../../classes/TypingGame';
 import English from '../../classes/English';
+import { TYPING_GAME_MAX_COMBO_RECORDS, TYPING_GAME_SCORE_RECORDS } from '../../constant/localStorageKey';
 
 const Body = styled.div`
   width: 100vw;
@@ -35,6 +36,15 @@ const Letters = styled.div`
     top: calc(50% - 180px);
   }
 `;
+
+const getTopFiveHighNum = (array) => {
+  const topFiveHighNums = [...array];
+  topFiveHighNums.sort((a, b) => b - a);
+  while (topFiveHighNums.length > 5) {
+    topFiveHighNums.pop();
+  }
+  return topFiveHighNums;
+};
 
 const Main = (props) => {
   const { typingGame } = props;
@@ -70,12 +80,18 @@ const Main = (props) => {
       { letter: typingGame.getCurrentLetter(), letterIsHide: false },
       { letter: typingGame.getCurrentLetter(), letterIsHide: true },
     ]);
-    setComboCount((currentComboCount) => {
-      setMaxComboCount(
-        (currentMaxComboCount) => Math.max(currentMaxComboCount, currentComboCount),
-      );
-      return currentComboCount;
-    });
+    const newMaxComboCount = Math.max(maxComboCount, comboCount);
+    setMaxComboCount(newMaxComboCount);
+    const maxComboRecords = JSON.parse(localStorage.getItem(TYPING_GAME_MAX_COMBO_RECORDS) || '[]');
+    const scoreRecords = JSON.parse(localStorage.getItem(TYPING_GAME_SCORE_RECORDS) || '[]');
+    localStorage.setItem(
+      TYPING_GAME_MAX_COMBO_RECORDS,
+      JSON.stringify(getTopFiveHighNum([...maxComboRecords, newMaxComboCount])),
+    );
+    localStorage.setItem(
+      TYPING_GAME_SCORE_RECORDS,
+      JSON.stringify(getTopFiveHighNum([...scoreRecords, score])),
+    );
     setShowResult(true);
   };
   const checkTypingKeyIsCorrect = (e) => {

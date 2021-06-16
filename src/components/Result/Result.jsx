@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { TYPING_GAME_MAX_COMBO_RECORDS, TYPING_GAME_SCORE_RECORDS } from '../../constant/localStorageKey';
 
 const Body = styled.div`
   position: absolute;
@@ -41,7 +42,10 @@ const Record = styled.div`
 `;
 
 const ControlButtons = (props) => {
+  const DISPLAY_RECORD_COUNT = 5;
   const { maxComboCount, score } = props;
+  const maxComboRecords = JSON.parse(localStorage.getItem(TYPING_GAME_MAX_COMBO_RECORDS) || '[]');
+  const scoreRecords = JSON.parse(localStorage.getItem(TYPING_GAME_SCORE_RECORDS) || '[]');
   return (
     <Body>
       <Result>
@@ -50,19 +54,31 @@ const ControlButtons = (props) => {
         <hr />
         <Records>
           <h1>Score Record</h1>
-          <Record>1. 20</Record>
-          <Record>2. ...</Record>
-          <Record>3. ...</Record>
-          <Record>4. ...</Record>
-          <Record>5. ...</Record>
+          {
+            scoreRecords.map((scoreRecord, index) => (
+              <Record>{`${index + 1}. ${scoreRecord}`}</Record>
+            ))
+          }
+          {
+            Array.from(new Array(DISPLAY_RECORD_COUNT - scoreRecords.length))
+              .map((_v, index) => (
+                <Record>{`${index + scoreRecords.length + 1}. ...`}</Record>
+              ))
+          }
         </Records>
         <Records>
           <h1>Max Combo Record</h1>
-          <Record>1. 20</Record>
-          <Record>2. ...</Record>
-          <Record>3. ...</Record>
-          <Record>4. ...</Record>
-          <Record>5. ...</Record>
+          {
+            maxComboRecords.map((maxCombo, index) => (
+              <Record>{`${index + 1}. ${maxCombo}`}</Record>
+            ))
+          }
+          {
+            Array.from(new Array(DISPLAY_RECORD_COUNT - maxComboRecords.length))
+              .map((_v, index) => (
+                <Record>{`${index + maxComboRecords.length + 1}. ...`}</Record>
+              ))
+          }
         </Records>
       </Result>
     </Body>
