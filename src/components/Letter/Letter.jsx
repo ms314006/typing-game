@@ -10,7 +10,6 @@ const Body = styled.div`
   font-size: 384px;
   color: #EABF9F;
   opacity: ${({ letterIsHide }) => (letterIsHide ? 0 : 1)};
-  transition: opacity 0.2s;
 `;
 
 const Letter = ({ letter, letterIsHide }) => (

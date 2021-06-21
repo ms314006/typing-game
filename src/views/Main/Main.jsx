@@ -5,6 +5,7 @@ import Letter from '../../components/Letter';
 import ControlButtons from '../../components/ControlButtons';
 import Countdown from '../../components/Countdown';
 import ComboCounter from '../../components/ComboCounter';
+import NextLetter from '../../components/NextLetter';
 import Result from '../../components/Result';
 import TypingGame from '../../classes/TypingGame';
 import English from '../../classes/English';
@@ -58,14 +59,20 @@ const Main = (props) => {
     { letter: '', letterIsHide: true },
   ]);
 
+  const getNextLetter = () => {
+    const nextLetter = letters.find(({ letterIsHide }) => letterIsHide);
+    return nextLetter.letter;
+  };
+
   const startTypingGame = () => {
     typingGame.start();
     setStarted(typingGame.getTypingGameStarted());
 
-    typingGame.setNewCurrentLetter(English.getRandomLetter());
+    typingGame.addNewCurrentLetterToQueue(English.getRandomLetter());
+    typingGame.addNewCurrentLetterToQueue(English.getRandomLetter());
     setLetters([
       { letter: typingGame.getCurrentLetter(), letterIsHide: false },
-      letters[1],
+      { letter: typingGame.getNextLetter(), letterIsHide: true },
     ]);
     setShowResult(false);
     setComboCount(0);
@@ -98,17 +105,17 @@ const Main = (props) => {
     const keyDownLetter = e.key.toUpperCase();
     const correct = typingGame.checkIsLetterCorrect(keyDownLetter);
     if (correct) {
-      typingGame.setNewCurrentLetter(English.getRandomLetter());
+      typingGame.addNewCurrentLetterToQueue(English.getRandomLetter());
       setLetters((currentLetters) => ([
         {
           letter: !currentLetters[0].letterIsHide
-            ? currentLetters[0].letter
+            ? typingGame.getNextLetter()
             : typingGame.getCurrentLetter(),
           letterIsHide: !currentLetters[0].letterIsHide,
         },
         {
           letter: !currentLetters[1].letterIsHide
-            ? currentLetters[1].letter
+            ? typingGame.getNextLetter()
             : typingGame.getCurrentLetter(),
           letterIsHide: !currentLetters[1].letterIsHide,
         },
@@ -141,6 +148,7 @@ const Main = (props) => {
   return (
     <Body>
       <ComboCounter comboCount={comboCount} />
+      <NextLetter letter={getNextLetter()} />
       {
         showResult ? (
           <Result
@@ -174,8 +182,9 @@ Main.propTypes = {
     start: PropTypes.func,
     stop: PropTypes.func,
     getTypingGameStarted: PropTypes.func,
-    setNewCurrentLetter: PropTypes.func,
+    addNewCurrentLetterToQueue: PropTypes.func,
     getCurrentLetter: PropTypes.func,
+    getNextLetter: PropTypes.func,
     checkIsLetterCorrect: PropTypes.func,
   }).isRequired,
 };

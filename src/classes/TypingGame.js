@@ -1,7 +1,7 @@
 class TypingGame {
   constructor() {
     this.started = false;
-    this.currentLetter = null;
+    this.letterQueue = [];
   }
 
   start() {
@@ -10,23 +10,31 @@ class TypingGame {
 
   stop() {
     this.started = false;
-    this.currentLetter = '';
+    this.letterQueue = [];
   }
 
   getTypingGameStarted() {
     return this.started;
   }
 
-  setNewCurrentLetter(letter) {
-    this.currentLetter = letter;
+  addNewCurrentLetterToQueue(letter) {
+    this.letterQueue.unshift(letter);
   }
 
   checkIsLetterCorrect(letter) {
-    return this.currentLetter === letter;
+    if (this.getCurrentLetter() === letter) {
+      this.letterQueue.pop();
+      return true;
+    }
+    return false;
   }
 
   getCurrentLetter() {
-    return this.currentLetter;
+    return this.letterQueue[1];
+  }
+
+  getNextLetter() {
+    return this.letterQueue[0];
   }
 }
 
